@@ -3,18 +3,24 @@
 A service that handles crypto signing requests with rate limiting and asynchronous processing using Redis queue. Also added in memory dict as cache (just for illustration, can be done with Redis or better way for prod env)
 
 ## Features
-- **Expose a `/crypto/sign` endpoint with a similar input syntax to ours.** 
+- **Expose a `/crypto/sign` endpoint with a similar input syntax to ours.**
+  
 Implemented by FastAPI 
 
 - **Your endpoint must always return immediately (within ~2s), regardless of whether the call to our endpoint succeeded**
+  
 Implemented with timeout of 1.8 seconds to upstream and asynchronous request processing with Redis queue with a 202 status code if request either failed or rate limited or timed out. Webhook notifications will be sent for completed requests from queue. **Please note, if no webhook provided reuqest will not be enqued and error will be returned to client immediately. 
 Also there is retry limit both for upstream (synthesia api) and webhook notification, if max_retry is reached, client will get error response. 
 
-- **You must not hit our endpoint more than 10 times per minute, but you should expect that your endpoint will get bursts of 60 requests in a minute, and still be able to eventually handle all of those.** 
+- **You must not hit our endpoint more than 10 times per minute, but you should expect that your endpoint will get bursts of 60 requests in a minute, and still be able to eventually handle all of those.**
+  
  Simple sliding window rate limiter was implemented to handle the case. Sliding window was chosen cause from testing upstream API (synthesia api), seems upstream uses sliding window. 
-- **You **must** package your service in such a way that the service can be started as a Docker container or a set of containers with Docker Compose. This will help our engineers when they evaluate your challenge. We *will not* evaluate challenge solutions that are not containerised. **
+ 
+- **You must package your service in such a way that the service can be started as a Docker container or a set of containers with Docker Compose. This will help our engineers when they evaluate your challenge. We *will not* evaluate challenge solutions that are not containerised. **
+  
 Docker containerised 
-- **[Bonus] If your service shuts down and restarts, users who requested a signature before the shutdown should still be notified when their signature is ready without re-requesting one from scratch** 
+- **[Bonus] If your service shuts down and restarts, users who requested a signature before the shutdown should still be notified when their signature is ready without re-requesting one from scratch**
+  
 Queue hence implemneted using Redis (initially it was just in memory queue, but for persistance after service restart, I reimplemneted with redis)
 
 ## Prerequisites
