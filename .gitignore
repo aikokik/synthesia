@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+# .env for now not ignored for helping to test locally
+.venv/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+logs/
